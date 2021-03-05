@@ -79,7 +79,7 @@ namespace JYCMS.WebAPI.Controllers
             {
                 ClassifyInfo info = JsonConvert.DeserializeObject<ClassifyInfo>(jsons);
                 string sql = string.Format(@"update Classify set ClassifyName='{1}' where ClassifyID={0}", info.ClassifyID, info.ClassifyName);
-                MySqlParameter[] mySqlParameters = { new MySqlParameter("ClassifyID", info.ClassifyID), new MySqlParameter("ClassifyName", info.ClassifyName), new MySqlParameter("Status", info.Status) };
+                MySqlParameter[] mySqlParameters = { new MySqlParameter("ClassifyID", info.ClassifyID), new MySqlParameter("ClassifyName", info.ClassifyName) };
                 int i = MySqlHelper.ExecuteNonQuery(CommandType.Text, sql, mySqlParameters);
                 if (i > 0)
                 {

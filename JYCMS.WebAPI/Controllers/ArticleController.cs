@@ -13,6 +13,7 @@ using JYCMS.WebAPI.DataSQLHelper;
 using MySqlHelper = JYCMS.WebAPI.DataSQLHelper.MySqlHelper;
 using Newtonsoft.Json;
 using System.IO;
+using JYCMS.WebAPI.Models;
 
 namespace JYCMS.WebAPI.Controllers
 {
@@ -39,6 +40,8 @@ namespace JYCMS.WebAPI.Controllers
             MySqlParameter param = new MySqlParameter("ArticleID", MySqlDbType.Int32);
             DataTable dt = MySqlHelper.GetDataSet(CommandType.Text, sql, param).Tables[0];
 
+            ResponseInfo<ArticleInfo> responseInfo = new Models.ResponseInfo<ArticleInfo> ();
+           // responseInfo.data = List<ExtendMethod.ToDataList<ArticleInfo>(dt)>;
             return JsonHelper.DataTableToJson(dt);
         }
 
