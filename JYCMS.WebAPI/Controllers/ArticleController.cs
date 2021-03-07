@@ -30,6 +30,10 @@ namespace JYCMS.WebAPI.Controllers
 
         public string GetID(int id)
         {
+            int code = 1;  int status = 200; string message = "成功";
+            ResponseInfo responseInfo = new Models.ResponseInfo();
+            Data data = new Data();
+
             base.HttpContext.Response.Headers.Add("Access-Control-Allow-Origin", "*");//允许跨域
             //throw new Exception("1234567");
             string idParam = base.HttpContext.Request.Query["id"];
@@ -39,10 +43,25 @@ namespace JYCMS.WebAPI.Controllers
  from Article as a where ArticleID = {0}   ", idParam);
             MySqlParameter param = new MySqlParameter("ArticleID", MySqlDbType.Int32);
             DataTable dt = MySqlHelper.GetDataSet(CommandType.Text, sql, param).Tables[0];
+            if (dt == null)
+            {
+                code = 1; message = "数据集为空";
+                data.data = message;
+            }
+            else
+            {
+                data.data = JsonHelper.DataTableToJson(dt);
+            }
+         
+            data.code = code; 
 
-            ResponseInfo<ArticleInfo> responseInfo = new Models.ResponseInfo<ArticleInfo> ();
-           // responseInfo.data = List<ExtendMethod.ToDataList<ArticleInfo>(dt)>;
-            return JsonHelper.DataTableToJson(dt);
+            responseInfo.status = status;
+            responseInfo.data = data;
+            responseInfo.message = message;
+
+            string strJson = JsonConvert.SerializeObject(responseInfo);
+            // responseInfo.data = List<ExtendMethod.ToDataList<ArticleInfo>(dt)>;
+            return strJson;
         }
 
         /// <summary>
@@ -53,9 +72,22 @@ namespace JYCMS.WebAPI.Controllers
         [HttpPost]
         public string AddArticle(string jsons)
         {
+            int code = 1; int status = 200; string message = "成功";
+            ResponseInfo responseInfo = new Models.ResponseInfo();
+            Data data = new Data();
+         
+        
             if (string.IsNullOrEmpty(jsons))
             {
-                return "{\"status\":\"-1\",\"Message\":\"传递参数不能为空！\"}";
+                code = 1; status = 200;  message = "传递参数不能为空";
+               // data.data = "{\"Message\":\"传递参数不能为空！\"}";
+                data.data = message;
+                data.code = code; 
+                responseInfo.status = status;
+                responseInfo.data = data;
+                responseInfo.message = message;
+                // return "{\"status\":\"-1\",\"Message\":\"传递参数不能为空！\"}";
+                return   JsonConvert.SerializeObject(responseInfo);
             }
             try
             {
@@ -67,22 +99,33 @@ VALUES ('{0}','{1}','{2}','{3}'.'{4}','{5}',{6},{7},{8},{9},'{10}',now())", info
                                          new MySqlParameter("ClassifyID",info.ClassifyID),new MySqlParameter("SiteID",info.SiteID),new MySqlParameter("UserID",info.UserID),
                                          new MySqlParameter("Status",info.Status),new MySqlParameter("Label",info.Label),new MySqlParameter("CreateTime",info.CreateTime)
              };
+             
                 int i = MySqlHelper.ExecuteNonQuery(CommandType.Text, sql, sqlparams);
                 if (i > 0)
                 {
-                    return "{\"status\":\"1\",\"Message\":\"添加成功！\"}";
+                    message = "成功";
+                    //return "{\"status\":\"1\",\"Message\":\"添加成功！\"}";
                 }
                 else
                 {
-                    return "{\"status\":\"0\",\"Message\":\"添加失败！\"}";
+                    code = 0; status = 200; message = "添加失败";
+                   // return "{\"status\":\"0\",\"Message\":\"添加失败！\"}";
                 }
             }
             catch (Exception ex)
             {
-                return "{\"status\":\"-2\",\"Message\":\"异常:\"" + ex.Message + "}";
+                code = 0; status = 500; message = "服务器内部错误:" + ex.Message;
+                //return "{\"status\":\"-2\",\"Message\":\"异常:\"" + ex.Message + "}";
                 //throw;
             }
 
+            data.code = code;
+            data.data = message;
+            responseInfo.status = status;
+            responseInfo.data = data;
+            responseInfo.message = message;
+
+            return JsonConvert.SerializeObject(responseInfo);
         }
 
         /// <summary>
@@ -94,6 +137,22 @@ VALUES ('{0}','{1}','{2}','{3}'.'{4}','{5}',{6},{7},{8},{9},'{10}',now())", info
         [HttpGet]
         public string UpdateArticleStatus(int id, int status)
         {
+            int code = 1; int statusStr = 200; string message = "成功";
+            ResponseInfo responseInfo = new Models.ResponseInfo();
+            Data data = new Data();
+            if (string.IsNullOrEmpty(id.ToString()))
+            {
+                code = 1; statusStr = 200; message = "传递参数不能为空";
+                data.data = "{\"Message\":\"传递参数不能为空！\"}";
+                data.code = code;
+                responseInfo.status = statusStr;
+                responseInfo.data = data;
+                responseInfo.message = message;
+                // return "{\"status\":\"-1\",\"Message\":\"传递参数不能为空！\"}";
+                return JsonConvert.SerializeObject(responseInfo);
+                //return "{\"status\":\"-1\",\"Message\":\"传递的参数不能为空！\"}";
+            }
+            
             base.HttpContext.Response.Headers.Add("Access-Control-Allow-Origin", "*");//允许跨域 
             string idParam = base.HttpContext.Request.Query["id"];
             string sql = string.Format(@"update Article set Status={1} where ArticleID={0}", id, status);
@@ -102,13 +161,20 @@ VALUES ('{0}','{1}','{2}','{3}'.'{4}','{5}',{6},{7},{8},{9},'{10}',now())", info
 
             if (i > 0)
             {
-                return "{\"status\":\"1\",\"Message\":\"更改文章状态成功！\"}";
+                code = 1; statusStr = 200; message = "更改文章状态成功";
+              //  return "{\"status\":\"1\",\"Message\":\"更改文章状态成功！\"}";
             }
             else
             {
-                return "{\"status\":\"0\",\"Message\":\"更改文章状态失败！\"}";
+                code = 0; statusStr = 200; message = "更改文章状态失败";
+               // return "{\"status\":\"0\",\"Message\":\"更改文章状态失败！\"}";
             }
-
+            data.code = code;
+            data.data = message;
+            responseInfo.status = statusStr;
+            responseInfo.data = data;
+            responseInfo.message = message;
+            return JsonConvert.SerializeObject(responseInfo);
         }
 
         /// <summary>
@@ -119,9 +185,20 @@ VALUES ('{0}','{1}','{2}','{3}'.'{4}','{5}',{6},{7},{8},{9},'{10}',now())", info
         [HttpGet]
         public string Delete(int id)
         {
+            int code = 1; int status = 200; string message = "成功";
+            ResponseInfo responseInfo = new Models.ResponseInfo();
+            Data data = new Data();
             if (string.IsNullOrEmpty(id.ToString()))
             {
-                return "{\"status\":\"-1\",\"Message\":\"传递的参数不能为空！\"}";
+                code = 1; status = 200; message = "传递参数不能为空";
+               // data.data = "{\"Message\":\"传递参数不能为空！\"}";
+                data.data = message;
+                data.code = code;
+                responseInfo.status = status;
+                responseInfo.data = data;
+                responseInfo.message = message; 
+                return JsonConvert.SerializeObject(responseInfo);
+                //return "{\"status\":\"-1\",\"Message\":\"传递的参数不能为空！\"}";
             }
             base.HttpContext.Response.Headers.Add("Access-Control-Allow-Origin", "*");//允许跨域 
             string idParam = base.HttpContext.Request.Query["id"];
@@ -131,23 +208,41 @@ VALUES ('{0}','{1}','{2}','{3}'.'{4}','{5}',{6},{7},{8},{9},'{10}',now())", info
 
             if (i > 0)
             {
-                return "{\"status\":\"1\",\"Message\":\"删除文章成功！\"}";
+                code = 1; status = 200; message = "删除文章成功";
+                //return "{\"status\":\"1\",\"Message\":\"删除文章成功！\"}";
             }
             else
             {
-                return "{\"status\":\"0\",\"Message\":\"删除文章失败！\"}";
+                code = 0; status = 200; message = "删除文章失败";
+               // return "{\"status\":\"0\",\"Message\":\"删除文章失败！\"}";
             }
+            data.code = code;
+            data.data = message;
+            responseInfo.status = status;
+            responseInfo.data = data;
+            responseInfo.message = message;
+            return JsonConvert.SerializeObject(responseInfo);
 
         }
 
 
         public string UploadImages(List<IFormFile> files)
         {
+            int code = 1; int status = 200; string message = "成功";
+            ResponseInfo responseInfo = new Models.ResponseInfo();
+            Data data = new Data();
             bool suffix = false; bool format = false; bool flen = false;
-            string message = "上传成功";
+           // string message = "上传成功";
             if (files.Count < 1)
             {
-                return "{\"status\":\"-1\",\"Message\":\"上传图片不能为空！\"}";
+
+                code = 0; status = 200; message = "上传图片不能为空";
+                data.code = code;
+                responseInfo.status = status; 
+                data.data = "{\"Message\":\"上传图片不能为空！\"}"; 
+                responseInfo.message = message;
+                return JsonConvert.SerializeObject(responseInfo);
+               // return "{\"status\":\"-1\",\"Message\":\"上传图片不能为空！\"}";
             }
             //返回的文件地址
             List<string> filenames = new List<string>();
@@ -175,6 +270,7 @@ VALUES ('{0}','{1}','{2}','{3}'.'{4}','{5}',{6},{7},{8},{9},'{10}',now())", info
                         {
                             //没有后缀  上传的文件没有后缀
                             suffix = true;
+                            code = 1;
                             message = "上传的文件没有后缀";
                             break;
                         }
@@ -182,6 +278,7 @@ VALUES ('{0}','{1}','{2}','{3}'.'{4}','{5}',{6},{7},{8},{9},'{10}',now())", info
                         {
                             //请上传jpg、png、gif格式的图片
                             format = true;
+                            code = 1;
                             message = "请上传jpg、png、gif格式的图片";
                             break;
                         }
@@ -189,6 +286,7 @@ VALUES ('{0}','{1}','{2}','{3}'.'{4}','{5}',{6},{7},{8},{9},'{10}',now())", info
                         if (length > 1024 * 1024 * 2)
                         {
                             flen = true;
+                            code = 1;
                             message = "上传的文件不能大于2M";
                             break;
                         }
@@ -207,13 +305,22 @@ VALUES ('{0}','{1}','{2}','{3}'.'{4}','{5}',{6},{7},{8},{9},'{10}',now())", info
                         filenames.Add(filePath + saveName);
                     }
                 }
-                return Newtonsoft.Json.JsonConvert.SerializeObject(filenames);
-            }
-            catch (Exception)
-            {
 
-                throw;
+              status = 200; message = "传递参数不能为空";
+              
+                //return Newtonsoft.Json.JsonConvert.SerializeObject(filenames);
             }
+            catch (Exception ex)
+            {
+                code = 0; status = 500; message = "服务器内部错误："+ex.Message;
+                //throw;
+            }
+            data.code = code;
+            data.data = Newtonsoft.Json.JsonConvert.SerializeObject(filenames);
+            responseInfo.status = status;
+            responseInfo.data = data;
+            responseInfo.message = message;
+            return JsonConvert.SerializeObject(responseInfo);
         }
     }
 }

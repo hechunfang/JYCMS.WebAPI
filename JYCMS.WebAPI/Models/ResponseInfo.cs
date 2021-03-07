@@ -5,24 +5,20 @@ using System.Threading.Tasks;
 
 namespace JYCMS.WebAPI.Models
 {
-    public class ResponseInfo<T>
+    public class ResponseInfo
     {
-        public string status { get; set; }
+        public int status { get; set; }
 
-        public List<Data<T>> data { get; set; }
+        public Data data { get; set; }
 
-        public string message { get; set; }
-
-        public string sysMessage { get; set; }
+        public string message { get; set; } 
     }
 
-    public class Data<T>
+    public class Data 
     { 
        public int code { get; set; }
 
-       public List<T> data { get; set; }
-
-        public string sysMessage { get; set; }
+       public string data { get; set; } 
     }
 
 }

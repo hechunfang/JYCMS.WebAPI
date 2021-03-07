@@ -155,6 +155,7 @@ namespace JYCMS.WebAPI.DataSQLHelper
            
         }
 
+    
         public static DataSet GetDataSetNoP(CommandType cmdType, string cmdText)
         {
             //创建一个MySqlCommand对象

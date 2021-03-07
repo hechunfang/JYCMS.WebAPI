@@ -14,7 +14,7 @@ namespace JYCMS.WebAPI.DataSQLHelper
             var JsonString = new StringBuilder();
             if (table.Rows.Count > 0)
             {
-                JsonString.Append("[");
+               // JsonString.Append("[");
                 for (int i = 0; i < table.Rows.Count; i++)
                 {
                     JsonString.Append("{");
@@ -38,7 +38,7 @@ namespace JYCMS.WebAPI.DataSQLHelper
                         JsonString.Append("},");
                     }
                 }
-                JsonString.Append("]");
+               // JsonString.Append("]");
             }
             return JsonString.ToString();
         }
